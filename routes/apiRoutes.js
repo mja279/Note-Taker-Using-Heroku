@@ -2,6 +2,7 @@
 // Linking our routes to a series of "data" sources.
 var router = require("express").Router();
 var notesData = require("../db/db.json");
+var fs = require("fs");
 
 // ROUTING
 
@@ -10,9 +11,10 @@ var notesData = require("../db/db.json");
   // Below code handles when users "visit" a page.
 
   router.get("/notes", function(req, res) {
-   notesData.getNotes()
+   /*notesData.getNotes(notes => res.json(notes))
     .then(notes => res.json(notes))
-    .catch(err => res.json(err))
+    .catch(err => res.json(err))*/
+    res.json(notesData.items);
   });
 
 
@@ -20,9 +22,26 @@ var notesData = require("../db/db.json");
   // Below code handles when a user submits a form and thus submits data to the server.
 
   router.post("/notes", function(req, res) {
-    notesData.saveNote(req.body)
+    //req.body
+    console.log(req.body)
+    //use fs to access db.json
+    fs.readFile("./db/db.json", "utf8", function(error, data) {
+      if(error){console.log(error)}
+
+      console.log("got the file, parsing")
+      console.log(data)
+      let raw = JSON.parse(data);
+      req.body.id = "1";
+      raw.items.push(req.body);
+      console.log("pushed new item")
+      fs.writeFile("./db/db.json", JSON.stringify(raw), function(err) {
+        if(err) return err;
+        console.log("write success");
+      })
+    })
+    /*notesData.saveNote(req.body)
     .then(notes => res.json(notes))
-    .catch(err => res.json(err))
+    .catch(err => res.json(err))*/
   });
 
   // Delete notes
