@@ -1,11 +1,10 @@
 // LOAD DATA
 // Linking our routes to a series of "data" sources.
-var router = require("express").Router();
-var notesData = require("../db/db.json");
-var fs = require("fs");
+const router = require("express").Router();
+const notesData = require("../db/db.json");
+const fs = require("fs");
 
 // ROUTING
-
 
   // API GET Requests
   // Below code handles when users "visit" a page.
@@ -22,7 +21,6 @@ var fs = require("fs");
   // Below code handles when a user submits a form and thus submits data to the server.
 
   router.post("/notes", function(req, res) {
-    //req.body
     console.log(req.body)
     //use fs to access db.json
     fs.readFile("./db/db.json", "utf8", function(error, data) {
@@ -39,9 +37,6 @@ var fs = require("fs");
         console.log("write success");
       })
     })
-    /*notesData.saveNote(req.body)
-    .then(notes => res.json(notes))
-    .catch(err => res.json(err))*/
   });
 
   // Delete notes
@@ -51,7 +46,11 @@ var fs = require("fs");
 //   and then rewrite the notes to the `db.json` file.
 
 router.delete("/notes/:id", function(req, res) {
-  notesData.deleteNote(req.params.id)
+
+  let id = req.body.id;
+
+  notesData.deleteNote(id)
+  console.log("note deleted")
   .then(() => res.json({message:"deleted"}))
   .catch(err => res.json(err))
 });
