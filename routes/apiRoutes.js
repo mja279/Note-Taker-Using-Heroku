@@ -10,12 +10,12 @@ const fs = require("fs");
   // Below code handles when users "visit" a page.
 
   router.get("/notes", function(req, res) {
-   /*notesData.getNotes(notes => res.json(notes))
-    .then(notes => res.json(notes))
-    .catch(err => res.json(err))*/
-    res.json(notesData.items);
-  });
-
+    fs.readFile("./db/db.json", "utf8", function(error, data) {
+      if(error){console.log(error)}
+      return res.json(JSON.parse(data));
+     }) 
+  });    
+ 
 
   // API POST Requests
   // Below code handles when a user submits a form and thus submits data to the server.
@@ -29,12 +29,12 @@ const fs = require("fs");
       console.log("got the file, parsing")
       console.log(data)
       let raw = JSON.parse(data);
-      req.body.id = "1";
-      raw.items.push(req.body);
+      raw.push(req.body);
       console.log("pushed new item")
       fs.writeFile("./db/db.json", JSON.stringify(raw), function(err) {
         if(err) return err;
-        console.log("write success");
+        console.log("write success")
+        res.end();
       })
     })
   });
@@ -43,12 +43,24 @@ const fs = require("fs");
 
 router.delete("/notes/:id", function(req, res) {
 
-  let id = req.body.id;
+  let id = req.params.id;
 
-  notesData.deleteNote(id)
-  console.log("note deleted")
-  .then(() => res.json({message:"deleted"}))
-  .catch(err => res.json(err))
+  fs.readFile("./db/db.json", "utf8", function(error, data) {
+    if(error){console.log(error)}
+
+    let notes = JSON.parse(data);
+
+    for(let i=0; i < notes.length; i++){
+      if(id == notes[i].id){
+        notes.splice(i,1);
+        fs.writeFile("./db/db.json", JSON.stringify(notes), function(err) {
+          if(err) return err;
+          console.log("delete success")
+        })
+      }
+    }
+  })
+  res.end(); 
 });
 
 module.exports = router;
